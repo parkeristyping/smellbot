@@ -31,7 +31,7 @@ class SmellBot
   end
 
   def get_last_update_time
-    Net::HTTP.start("localhost", "3000") do |json|
+    Net::HTTP.start("www.itsmellshere.com", "80") do |json|
       request = Net::HTTP::Get.new "/smells/last.json"
       response = JSON.parse((json.request request).body)
     end
