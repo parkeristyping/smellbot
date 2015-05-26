@@ -26,12 +26,16 @@ class SmellBot
   attr_accessor :last_update, :this_update, :first_time_through
 
   def initialize
-    @last_update = nil # this to be updated
+    @last_update = get_last_update_time # Time.now
     self.parse_replies
   end
 
-  def get_last_update
-    # TODO: Add logic to get timestamp of last post from site
+  def get_last_update_time
+    Net::HTTP.start("localhost", "3000") do |json|
+      request = Net::HTTP::Get.new "/smells/last.json"
+      response = JSON.parse((json.request request).body)
+    end
+    Time.parse(response["created_at"])
   end
 
   def parse_replies
@@ -47,18 +51,20 @@ class SmellBot
           @this_update = tweet.created_at
           @first_time_through = false
         end
-        reply "Thanks, but you need to enable location services and 'share precise location'. More detailed instructions here: www.placeholder.com", tweet
+        reply "#USER# That stinks! You need to enable location services. Instructions here: itsmellshere.com/enable_location", tweet
       else
         if @first_time_through
           @this_update = tweet.created_at
           @first_time_through = false
         end
-        binding.pry
         post(tweet: tweet, user: tweet.user)
-        reply "Thanks! Your smell has been added to our database. Check out the map at www.itsmellshere.com", tweet
+        reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
       end
     end
-    @last_update = @this_update
+
+    if @this_update
+      @last_update = @this_update
+    end
 
     sleep 60
 
@@ -82,7 +88,7 @@ class SmellBot
     }.to_json
     req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
     req.body = body
-    Net::HTTP.new("localhost", "3000").start {|http| http.request(req)}
+    Net::HTTP.new("www.itsmellshere.com", "80").start {|http| http.request(req)}
   end
 end
 
