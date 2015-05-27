@@ -23,55 +23,50 @@ token file[:token]
 no_update
 
 class SmellBot
-  attr_accessor :last_update, :this_update, :first_time_through
 
   def initialize
     @last_update = get_last_update_time
-    self.parse_replies
   end
 
+  def run
+    check_since_last_update
+    stream
+  end
+
+  private
   def get_last_update_time
-    Net::HTTP.start("www.itsmellshere.com", "80") do |json|
+    response = Net::HTTP.start("www.itsmellshere.com", "80") do |json|
       request = Net::HTTP::Get.new "/smells/last.json"
-      @last_update_response = JSON.parse((json.request request).body)
+      JSON.parse((json.request request).body)
     end
-    Time.parse(@last_update_response["created_at"])
+    Time.parse(response["created_at"])
   end
 
-  def parse_replies
-    # search through all replies
-    @first_time_through = true
-
+  def check_since_last_update
     replies do |tweet|
-      # End if we've gotten into old tweets
       break if tweet.created_at <= @last_update
-      # if tweet does not have geolocation, reply with further instructions
-      if !tweet.geo?
-        if @first_time_through
-          @this_update = tweet.created_at
-          @first_time_through = false
-        end
-        reply "#USER# That stinks! You need to enable location services. Instructions here: itsmellshere.com/enable_location", tweet
-      else
-        if @first_time_through
-          @this_update = tweet.created_at
-          @first_time_through = false
-        end
-        post(tweet: tweet, user: tweet.user)
-        reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
+      handle tweet
+    end
+  end
+
+  def stream
+    streaming do
+      replies do |tweet|
+        handle tweet
       end
     end
-
-    if @this_update
-      @last_update = @this_update
-    end
-
-    sleep 60
-
-    self.parse_replies
   end
 
-  def post(post_url: "/smells", tweet:, user:)
+  def handle(tweet)
+    if !tweet.geo?
+      reply "#USER# That stinks! You need to enable location services. Instructions: www.itsmellshere.com/enable_location", tweet
+    else
+      post_smell(tweet: tweet, user: tweet.user)
+      reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
+    end
+  end
+
+  def post_smell(post_url: "/smells", tweet:, user:)
     body = {
       "smell" => {
         "content" => tweet.text,
@@ -90,52 +85,5 @@ class SmellBot
   end
 end
 
-SmellBot.new
-
-
-## Script for testing rails app websockets
-# class PotentialSmellBot
-
-#   def initialize
-#     @time = Time.now
-#     self.getTweets
-#   end
-
-#   def getTweets
-#     geo_tweets = []
-#     search("it smells") do |tweet|
-#       if tweet.geo? && tweet.geo.coordinates != [0.0, 0.0] # && tweet.created_at > @time
-#         geo_tweets << tweet
-#         @time = tweet.created_at
-#       end
-#     end
-#     puts "There were #{geo_tweets.length} tweets with valid geographic info"
-#     geo_tweets.each do |tweet|
-#       post(tweet: tweet, user:tweet.user)
-#     end
-
-#     sleep 180
-
-#     self.getTweets
-#   end
-
-#   def post(post_url: "/smells", tweet:, user:)
-#     body = {
-#       "smell" => {
-#         "smell" => {
-#           "content" => tweet.text,
-#           "lat" => tweet.geo.coordinates[0],
-#           "lng" => tweet.geo.coordinates[1]
-#         },
-#         "user" => {
-#           "twitter_id" => user.id,
-#           "twitter_handle" => user.handle,
-#           "name" => user.name
-#         }
-#       }
-#     }.to_json
-#     req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
-#     req.body = body
-#     Net::HTTP.new("localhost", "3000").start {|http| http.request(req)}
-#   end
-# end
+smellbot = SmellBot.new
+smellbot.run
