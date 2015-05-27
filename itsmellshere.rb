@@ -26,7 +26,7 @@ class SmellBot
   attr_accessor :last_update, :this_update, :first_time_through
 
   def initialize
-    @last_update = get_last_update_time # Time.now
+    @last_update = Time.now #get_last_update_time
     self.parse_replies
   end
 
@@ -44,7 +44,7 @@ class SmellBot
 
     replies do |tweet|
       # End if we've gotten into old tweets
-      break if @last_update && tweet.created_at < @last_update
+      break if tweet.created_at < @last_update
       # if tweet does not have geolocation, reply with further instructions
       if !tweet.geo?
         if @first_time_through
@@ -74,11 +74,9 @@ class SmellBot
   def post(post_url: "/smells", tweet:, user:)
     body = {
       "smell" => {
-        "smell" => {
-          "content" => tweet.text,
-          "lat" => tweet.geo.coordinates[0],
-          "lng" => tweet.geo.coordinates[1]
-        },
+        "content" => tweet.text,
+        "lat" => tweet.geo.coordinates[0],
+        "lng" => tweet.geo.coordinates[1],
         "user" => {
           "twitter_id" => user.id,
           "twitter_handle" => user.handle,
@@ -88,25 +86,25 @@ class SmellBot
     }.to_json
     req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
     req.body = body
-    Net::HTTP.new("wwww.itsmellshere.com", "80").start {|http| http.request(req)}
+    Net::HTTP.new("www.itsmellshere.com", "80").start {|http| http.request(req)}
   end
 end
 
-# SmellBot.new
+SmellBot.new
 
 
 ## Script for testing rails app websockets
-class TayBot
+class PotentialSmellBot
 
   def initialize
     @time = Time.now
-    self.getTayTweets
+    self.getTweets
   end
 
-  def getTayTweets
+  def getTweets
     geo_tweets = []
-    search("taylor swift") do |tweet|
-      if tweet.geo? && tweet.geo.coordinates != [0.0, 0.0] && tweet.created_at > @time
+    search("it smells") do |tweet|
+      if tweet.geo? && tweet.geo.coordinates != [0.0, 0.0] # && tweet.created_at > @time
         geo_tweets << tweet
         @time = tweet.created_at
       end
@@ -118,7 +116,7 @@ class TayBot
 
     sleep 180
 
-    self.getTayTweets
+    self.getTweets
   end
 
   def post(post_url: "/smells", tweet:, user:)
@@ -142,13 +140,13 @@ class TayBot
   end
 end
 
-# TayBot.new
+# PotentialSmellBot.new
 
 class TestBot
   def initialize
     center = {lat: 40.7127, lng: -74.0059}
     100.times do
-        post(lat: center[:lat] + rand(-5.0..5.0)/10.0, lng: center[:lng] + rand(-5.0..5.0)/10.0)
+      post(lat: center[:lat] + rand(-5.0..5.0)/10.0, lng: center[:lng] + rand(-5.0..5.0)/10.0)
     end
   end
 
@@ -167,4 +165,4 @@ class TestBot
   end
 end
 
-TestBot.new
+# TestBot.new
