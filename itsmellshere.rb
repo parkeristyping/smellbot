@@ -88,8 +88,83 @@ class SmellBot
     }.to_json
     req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
     req.body = body
-    Net::HTTP.new("www.itsmellshere.com", "80").start {|http| http.request(req)}
+    Net::HTTP.new("wwww.itsmellshere.com", "80").start {|http| http.request(req)}
   end
 end
 
-SmellBot.new
+# SmellBot.new
+
+
+## Script for testing rails app websockets
+class TayBot
+
+  def initialize
+    @time = Time.now
+    self.getTayTweets
+  end
+
+  def getTayTweets
+    geo_tweets = []
+    search("taylor swift") do |tweet|
+      if tweet.geo? && tweet.geo.coordinates != [0.0, 0.0] && tweet.created_at > @time
+        geo_tweets << tweet
+        @time = tweet.created_at
+      end
+    end
+    puts "There were #{geo_tweets.length} tweets with valid geographic info"
+    geo_tweets.each do |tweet|
+      post(tweet: tweet, user:tweet.user)
+    end
+
+    sleep 180
+
+    self.getTayTweets
+  end
+
+  def post(post_url: "/smells", tweet:, user:)
+    body = {
+      "smell" => {
+        "smell" => {
+          "content" => tweet.text,
+          "lat" => tweet.geo.coordinates[0],
+          "lng" => tweet.geo.coordinates[1]
+        },
+        "user" => {
+          "twitter_id" => user.id,
+          "twitter_handle" => user.handle,
+          "name" => user.name
+        }
+      }
+    }.to_json
+    req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
+    req.body = body
+    Net::HTTP.new("localhost", "3000").start {|http| http.request(req)}
+  end
+end
+
+# TayBot.new
+
+class TestBot
+  def initialize
+    center = {lat: 40.7127, lng: -74.0059}
+    100.times do
+        post(lat: center[:lat] + rand(-5.0..5.0)/10.0, lng: center[:lng] + rand(-5.0..5.0)/10.0)
+    end
+  end
+
+  def post(post_url: "/smells", lat:, lng:)
+    body = {
+      "smell" => {
+        "smell" => {
+          "lat" => lat,
+          "lng" => lng
+        }
+      }
+    }.to_json
+    req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
+    req.body = body
+    Net::HTTP.new("localhost", "3000").start {|http| http.request(req)}
+  end
+end
+
+TestBot.new
