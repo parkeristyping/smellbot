@@ -6,11 +6,11 @@ require 'chatterbot/dsl'
 require 'net/http'
 Bundler.require(:default)
 
-consumer_key ENV[:consumer_key]
-consumer_secret ENV[:consumer_secret]
+consumer_key ENV["consumer_key"]
+consumer_secret ENV["consumer_secret"]
 
-secret ENV[:secret]
-token ENV[:token]
+secret ENV["secret"]
+token ENV["token"]
 
 class SmellBot
 
