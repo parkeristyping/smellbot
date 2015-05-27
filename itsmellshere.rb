@@ -6,6 +6,8 @@ require 'chatterbot/dsl'
 require 'net/http'
 Bundler.require(:default)
 
+binding.pry
+
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]
 
