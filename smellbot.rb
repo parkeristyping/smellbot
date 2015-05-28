@@ -23,7 +23,7 @@ def handle(tweet)
     reply "#USER# That stinks! You need to enable location services. Instructions: www.itsmellshere.com/enable_location", tweet
   else
     if in_body_coords
-      post_smell(tweet: tweet, user: tweet.user, coords: [in_body_coords[0], in_body_coords[1]])
+      post_smell(tweet: tweet, user: tweet.user, coords: [in_body_coords[1], in_body_coords[2]])
     else
       post_smell(tweet: tweet, user: tweet.user)
     end
@@ -39,7 +39,6 @@ def post_smell(post_url: "/smells", tweet:, user:, coords: nil)
     lat = tweet.geo.coordinates[0]
     lng = tweet.geo.coordinates[1]
   end
-  binding.pry
   body = {
     "smell" => {
       "content" => tweet.text,
