@@ -4,6 +4,7 @@ require 'yaml'
 require 'net/http'
 require 'json'
 require 'chatterbot/dsl'
+require 'pry'
 
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]
@@ -38,6 +39,7 @@ def post_smell(post_url: "/smells", tweet:, user:, coords: nil)
     lat = tweet.geo.coordinates[0]
     lng = tweet.geo.coordinates[1]
   end
+  binding.pry
   body = {
     "smell" => {
       "content" => tweet.text,
