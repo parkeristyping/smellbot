@@ -4,7 +4,6 @@ require 'yaml'
 require 'net/http'
 require 'json'
 require 'chatterbot/dsl'
-require 'pry'
 
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]
