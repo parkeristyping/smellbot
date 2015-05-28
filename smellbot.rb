@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'bundler'
 require 'yaml'
 require 'net/http'
 require 'json'
