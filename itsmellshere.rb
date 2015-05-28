@@ -67,3 +67,5 @@ def stream
     end
   end
 end
+
+run
