@@ -1,11 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'bundler'
-require 'yaml'
-require 'json'
-require 'chatterbot/dsl'
-require 'net/http'
-require 'pry'
+require_relative 'config/environment.rb'
 
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]
@@ -67,5 +62,3 @@ def stream
     end
   end
 end
-
-run

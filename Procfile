@@ -1,1 +1,1 @@
-worker: ruby itsmellshere.rb
+worker: bundle exec rake run
