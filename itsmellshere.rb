@@ -2,17 +2,18 @@
 
 require 'bundler'
 require 'yaml'
+require 'json'
+require 'chatterbot'
 require 'chatterbot/dsl'
 require 'net/http'
-Bundler.require(:default)
-
-binding.pry
+require 'pry'
 
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]
-
 secret ENV["secret"]
 token ENV["token"]
+
+binding.pry
 
 class SmellBot
 
@@ -62,6 +63,7 @@ class SmellBot
   end
 
   def check_since_last_update
+    binding.pry
     replies do |tweet|
       break if tweet.created_at <= @last_update
       SmellBot::handle tweet
@@ -69,6 +71,7 @@ class SmellBot
   end
 
   def stream
+    binding.pry
     streaming do
       replies do |tweet|
         SmellBot::handle tweet
