@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
-require_relative 'config/environment.rb'
+require 'yaml'
+require 'net/http'
+require 'json'
+require 'chatterbot/dsl'
 
 consumer_key ENV["consumer_key"]
 consumer_secret ENV["consumer_secret"]

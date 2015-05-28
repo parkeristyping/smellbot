@@ -1,1 +1,1 @@
-worker: bundle exec rake run
+smellbot: bundle exec ruby smellbot.rb
