@@ -17,20 +17,32 @@ def run
 end
 
 def handle(tweet)
-  if !tweet.geo?
+  in_body_coords = tweet.text.match(/Lat:(-?\d+.\d+), Lng:(-?\d+.\d+)/)
+  if !tweet.geo? && !in_body_coords
     reply "#USER# That stinks! You need to enable location services. Instructions: www.itsmellshere.com/enable_location", tweet
   else
-    post_smell(tweet: tweet, user: tweet.user)
+    if in_body_coords
+      post_smell(tweet: tweet, user: tweet.user, coords: [in_body_coords[0], in_body_coords[1]])
+    else
+      post_smell(tweet: tweet, user: tweet.user)
+    end
     reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
   end
 end
 
-def post_smell(post_url: "/smells", tweet:, user:)
+def post_smell(post_url: "/smells", tweet:, user:, coords: nil)
+  if coords
+    lat = coords[0]
+    lng = coords[1]
+  else
+    lat = tweet.geo.coordinates[0]
+    lng = tweet.geo.coordinates[1]
+  end
   body = {
     "smell" => {
       "content" => tweet.text,
-      "lat" => tweet.geo.coordinates[0],
-      "lng" => tweet.geo.coordinates[1],
+      "lat" => lat,
+      "lng" => lng,
       "user" => {
         "twitter_id" => user.id,
         "twitter_handle" => user.handle,

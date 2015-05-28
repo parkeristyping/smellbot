@@ -29,7 +29,7 @@ class TestBot
     }.to_json
     req = Net::HTTP::Post.new(post_url, initheader = {'Content-Type' =>'application/json'})
     req.body = body
-    Net::HTTP.new("www.itsmellshere.com", "80").start {|http| http.request(req)}
+    Net::HTTP.new("localhost", "3000").start {|http| http.request(req)}
   end
 end
 
