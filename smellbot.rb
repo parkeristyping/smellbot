@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-Bundler.require(:development)
-Dotenv.load
 require 'yaml'
 require 'net/http'
 require 'json'
