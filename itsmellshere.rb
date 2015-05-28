@@ -4,21 +4,18 @@ require 'bundler'
 require 'yaml'
 require 'json'
 require 'chatterbot'
-require 'chatterbot/dsl'
 require 'net/http'
 require 'pry'
-
-consumer_key ENV["consumer_key"]
-consumer_secret ENV["consumer_secret"]
-secret ENV["secret"]
-token ENV["token"]
-
-binding.pry
 
 class SmellBot
 
   def initialize
     @last_update = get_last_update_time
+    @chatterbot = Chatterbot::Bot.new
+    @chatterbot.consumer_key ENV["consumer_key"]
+    @chatterbot.consumer_secret ENV["consumer_secret"]
+    @chatterbot.secret ENV["secret"]
+    @chatterbot.token ENV["token"]
   end
 
   def run
@@ -28,10 +25,10 @@ class SmellBot
 
   def self.handle(tweet)
     if !tweet.geo?
-      reply "#USER# That stinks! You need to enable location services. Instructions: www.itsmellshere.com/enable_location", tweet
+      @chatterbot.reply "#USER# That stinks! You need to enable location services. Instructions: www.itsmellshere.com/enable_location", tweet
     else
       self.post_smell(tweet: tweet, user: tweet.user)
-      reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
+      @chatterbot.reply "#USER# Thanks! Your smell was added. Check out the map at www.itsmellshere.com", tweet
     end
   end
 
@@ -63,16 +60,14 @@ class SmellBot
   end
 
   def check_since_last_update
-    binding.pry
-    replies do |tweet|
+    @chatterbot.replies do |tweet|
       break if tweet.created_at <= @last_update
       SmellBot::handle tweet
     end
   end
 
   def stream
-    binding.pry
-    streaming do
+    @chatterbot.streaming do
       replies do |tweet|
         SmellBot::handle tweet
       end
